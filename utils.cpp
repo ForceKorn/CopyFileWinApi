@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 #include "utils.h"
 
@@ -22,14 +23,18 @@ void printResult(const char* msg = "")
     }
 }
 
+constexpr std::size_t operator""_MB(unsigned long long value) 
+{
+    return 1024 * 1024 * value;
+}
+
 bool copyFileImplementation(HANDLE hSourceFile, HANDLE hDestinationFile)
 {
-    constexpr size_t PAGE_SIZE  = 4096;
-    char buffer[PAGE_SIZE]      = { 0 };
+    std::vector<char> buffer(1_MB);
 
     DWORD dwBytesRead = 0;
     DWORD dwBytesWritten = 0;
-    while (ReadFile(hSourceFile, buffer, PAGE_SIZE, &dwBytesRead, NULL) && dwBytesRead > 0)
+    while (ReadFile(hSourceFile, &buffer[0], buffer.size(), &dwBytesRead, NULL) && dwBytesRead > 0)
     {
         if (SetFilePointer(hDestinationFile, NULL, NULL, FILE_END) == INVALID_SET_FILE_POINTER)
         {
@@ -37,7 +42,7 @@ bool copyFileImplementation(HANDLE hSourceFile, HANDLE hDestinationFile)
             return false;
         }
 
-        if (!WriteFile(hDestinationFile, buffer, dwBytesRead, &dwBytesWritten, NULL))
+        if (!WriteFile(hDestinationFile, &buffer[0], dwBytesRead, &dwBytesWritten, NULL))
         {
             printResult("WriteFile");
             return false;
