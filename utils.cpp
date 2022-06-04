@@ -2,59 +2,76 @@
 
 #include "utils.h"
 
-
-bool isInvalidHandle(HANDLE hResult)
+void printResult(const char* msg = "")
 {
-	return hResult == INVALID_HANDLE_VALUE;
+	LPSTR errorText = NULL;
+    
+    FormatMessageA(
+		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+        NULL, 
+		GetLastError(), 
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        reinterpret_cast<LPSTR>(&errorText),
+		NULL, 
+		NULL);
+
+    if (errorText != NULL)
+    {
+		std::cout << "Result: " << msg << " " << errorText << '\n';
+        LocalFree(errorText);
+    }
 }
 
-void printLastError()
+bool copyFileImplementation(HANDLE hSourceFile, HANDLE hDestinationFile)
 {
-	std::cout << "Error: " << GetLastError() << '\n';
-	system("pause");
+    constexpr size_t PAGE_SIZE  = 4096;
+    char buffer[PAGE_SIZE]      = { 0 };
+
+    DWORD dwBytesRead = 0;
+    DWORD dwBytesWritten = 0;
+    while (ReadFile(hSourceFile, buffer, PAGE_SIZE, &dwBytesRead, NULL) && dwBytesRead > 0)
+    {
+        if (SetFilePointer(hDestinationFile, NULL, NULL, FILE_END) == INVALID_SET_FILE_POINTER)
+        {
+            printResult("SetFilePointer");
+            return false;
+        }
+
+        if (!WriteFile(hDestinationFile, buffer, dwBytesRead, &dwBytesWritten, NULL))
+        {
+            printResult("WriteFile");
+            return false;
+        }
+    }
+
+    printResult();
+	return true;
 }
 
-void printAndExitOnInvalidHandle(HANDLE hFile)
+HANDLE makeHandlerToCreateFile(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwCreationDisposition)
 {
-	if (isInvalidHandle(hFile))
-	{
-		printLastError();
-		std::exit(EXIT_FAILURE);
-	}
+    return CreateFileW(lpFileName, dwDesiredAccess, NULL, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
 }
 
-std::string readBufferFromFile(const LPCTSTR sourceFileName)
+bool copyFile(const wchar_t* sourceFileName, const wchar_t* destinationFileName)
 {
-	WinApiFileHandleWrapper sourceFileWrap(sourceFileName, GENERIC_READ, OPEN_EXISTING);
-	printAndExitOnInvalidHandle(sourceFileWrap);
+	WinApiFileHandleWrapper sourceFileWrap = 
+        makeHandlerToCreateFile(sourceFileName, GENERIC_READ, OPEN_EXISTING);
 
-	std::string readBuffer((size_t)GetFileSize(sourceFileWrap, NULL), '_');
-
-	BOOL isReadSuccess = ReadFile(sourceFileWrap, (LPVOID)&readBuffer[0], (DWORD)readBuffer.size(), NULL, NULL);
-	if (isReadSuccess == FALSE)
+    if (sourceFileWrap.get() == INVALID_HANDLE_VALUE)
 	{
-		std::cout << "readBufferFromFile ";
-		printLastError();
+        printResult();
+		return false;
 	}
 
-	return readBuffer;
-}
+    WinApiFileHandleWrapper destinationFileWrap 
+        = makeHandlerToCreateFile(destinationFileName, GENERIC_WRITE, CREATE_NEW);
+    
+    if (destinationFileWrap.get() == INVALID_HANDLE_VALUE)
+    {
+        printResult();
+        return false;
+    }
 
-void writeFromBufferToFile(const LPCTSTR destinationFileName, const std::string& readBuffer)
-{
-	WinApiFileHandleWrapper destinationFileWrap(TEXT("DestinationFile.txt"), GENERIC_WRITE, CREATE_ALWAYS);
-	printAndExitOnInvalidHandle(destinationFileWrap);
-
-	BOOL isWriteSuccess = WriteFile(destinationFileWrap, (LPCVOID)readBuffer.c_str(),
-		(DWORD)readBuffer.size(), NULL, NULL);
-
-	if (isWriteSuccess == FALSE)
-	{
-		std::cout << "writeFromBufferToFile ";
-		printLastError();
-	}
-	else
-	{
-		std::cout << "Success on write\n";
-	}
+	return copyFileImplementation(sourceFileWrap.get(), destinationFileWrap.get());
 }

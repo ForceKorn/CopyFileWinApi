@@ -6,11 +6,11 @@ class WinApiFileHandleWrapper
 {
 public:
 
-	WinApiFileHandleWrapper(LPCWSTR localFileName, DWORD desiredAccess, DWORD creationDisposition);
+	WinApiFileHandleWrapper(HANDLE hFile);
 	~WinApiFileHandleWrapper();
 
-	operator HANDLE();
-
+    HANDLE get() const noexcept;
+    
 private:
-	HANDLE m_file = nullptr;
+	HANDLE m_file = INVALID_HANDLE_VALUE;
 };

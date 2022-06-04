@@ -8,8 +8,9 @@
 
 int main()
 {
-	std::string readBuffer = readBufferFromFile(TEXT("main.cpp"));
-	writeFromBufferToFile(TEXT("DestinationFile.txt"), readBuffer);
+	const bool copyResult = copyFile(L"SourceText.txt", L"DestinationFile.txt");
+	system("pause");
 
-	return 0;
+	return copyResult;
+	
 }

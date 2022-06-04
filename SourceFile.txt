@@ -1,2 +1,0 @@
-This is a simple source file used to be copied to new location.
-Here is a simple new line example!

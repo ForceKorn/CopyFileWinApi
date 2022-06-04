@@ -6,12 +6,4 @@
 
 #include "WinApiFileHandleWrapper.h"
 
-bool isInvalidHandle(HANDLE hResult);
-
-void printLastError();
-
-void printAndExitOnInvalidHandle(HANDLE hFile);
-
-void writeFromBufferToFile(const LPCTSTR destinationFileName, const std::string& readBuffer);
-
-std::string readBufferFromFile(const LPCTSTR sourceFileName);
+bool copyFile(const wchar_t* sourceFileName, const wchar_t* destinationFileName);

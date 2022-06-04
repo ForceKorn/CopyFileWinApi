@@ -1,22 +1,17 @@
 #include "WinApiFileHandleWrapper.h"
 
-WinApiFileHandleWrapper::WinApiFileHandleWrapper(LPCWSTR localFileName, 
-												 DWORD desiredAccess, 
-												 DWORD creationDisposition)
-	: m_file(CreateFile(localFileName, 
-						desiredAccess, 
-						NULL, 
-						NULL, 
-						creationDisposition, 
-						FILE_ATTRIBUTE_NORMAL, 
-						NULL)) {}
+WinApiFileHandleWrapper::WinApiFileHandleWrapper(HANDLE hFile)
+	: m_file(hFile) {}
 
 WinApiFileHandleWrapper::~WinApiFileHandleWrapper() 
 {
-	CloseHandle(m_file); 
+	if (m_file)
+	{
+		CloseHandle(m_file);
+	}
 }
 
-WinApiFileHandleWrapper::operator HANDLE()
+HANDLE WinApiFileHandleWrapper::get() const noexcept
 {
 	return m_file;
 }
