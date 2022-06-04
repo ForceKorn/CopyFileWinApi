@@ -1,17 +1,17 @@
 #include "WinApiFileHandleWrapper.h"
 
 WinApiFileHandleWrapper::WinApiFileHandleWrapper(HANDLE hFile)
-	: m_file(hFile) {}
+    : m_file(hFile) {}
 
 WinApiFileHandleWrapper::~WinApiFileHandleWrapper() 
 {
-	if (m_file)
-	{
-		CloseHandle(m_file);
-	}
+    if (m_file)
+    {
+        CloseHandle(m_file);
+    }
 }
 
 HANDLE WinApiFileHandleWrapper::get() const noexcept
 {
-	return m_file;
+    return m_file;
 }

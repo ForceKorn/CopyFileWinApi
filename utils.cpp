@@ -4,20 +4,20 @@
 
 void printResult(const char* msg = "")
 {
-	LPSTR errorText = NULL;
+    LPSTR errorText = NULL;
     
     FormatMessageA(
-		FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL, 
-		GetLastError(), 
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        GetLastError(), 
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         reinterpret_cast<LPSTR>(&errorText),
-		NULL, 
-		NULL);
+        NULL, 
+        NULL);
 
     if (errorText != NULL)
     {
-		std::cout << "Result: " << msg << " " << errorText << '\n';
+        std::cout << "Result: " << msg << " " << errorText << '\n';
         LocalFree(errorText);
     }
 }
@@ -45,7 +45,7 @@ bool copyFileImplementation(HANDLE hSourceFile, HANDLE hDestinationFile)
     }
 
     printResult();
-	return true;
+    return true;
 }
 
 HANDLE makeHandlerToCreateFile(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD dwCreationDisposition)
@@ -55,14 +55,14 @@ HANDLE makeHandlerToCreateFile(LPCWSTR lpFileName, DWORD dwDesiredAccess, DWORD 
 
 bool copyFile(const wchar_t* sourceFileName, const wchar_t* destinationFileName)
 {
-	WinApiFileHandleWrapper sourceFileWrap = 
+    WinApiFileHandleWrapper sourceFileWrap = 
         makeHandlerToCreateFile(sourceFileName, GENERIC_READ, OPEN_EXISTING);
 
     if (sourceFileWrap.get() == INVALID_HANDLE_VALUE)
-	{
+    {
         printResult();
-		return false;
-	}
+        return false;
+    }
 
     WinApiFileHandleWrapper destinationFileWrap 
         = makeHandlerToCreateFile(destinationFileName, GENERIC_WRITE, CREATE_NEW);
@@ -73,5 +73,5 @@ bool copyFile(const wchar_t* sourceFileName, const wchar_t* destinationFileName)
         return false;
     }
 
-	return copyFileImplementation(sourceFileWrap.get(), destinationFileWrap.get());
+    return copyFileImplementation(sourceFileWrap.get(), destinationFileWrap.get());
 }

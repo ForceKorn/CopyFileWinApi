@@ -8,9 +8,8 @@
 
 int main()
 {
-	const bool copyResult = copyFile(L"SourceText.txt", L"DestinationFile.txt");
-	system("pause");
+    const bool copyResult = copyFile(L"SourceText.txt", L"DestinationFile.txt");
+    system("pause");
 
-	return copyResult;
-	
+    return copyResult;
 }
