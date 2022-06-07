@@ -1,5 +1,10 @@
 # Prerequisites
-*.d
+Debug/
+Release/
+*.vs/
+*vcxproj.user
+*vcxproj.filters
+DestinationFile.txt
 
 # Compiled Object files
 *.slo
